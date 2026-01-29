@@ -10,7 +10,7 @@ function Layout({children}) {
     <div className='flex min-h-screen bg-gray-100'>
 
         <aside className={`fixed p-5 inset-y-0 left-0 w-64 bg-white shadow-md ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300 md:translate-x-0 md:static md:inset-0`}>
-        <h2 className="text-2xl font-bold mb-8">Coaching Admin</h2>
+        <h2 className="text-2xl font-bold mb-8">Coaching Logo</h2>
 
         <nav className="space-y-4">
           <Link to="/dashboard" className="block hover:bg-gray-100 p-2 rounded">
