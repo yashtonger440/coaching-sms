@@ -13,11 +13,14 @@ function Layout({children}) {
         <h2 className="text-2xl font-bold mb-8">Coaching Logo</h2>
 
         <nav className="space-y-4">
-          <Link to="/dashboard" className="block hover:bg-gray-100 p-2 rounded">
+          <Link to="/" className="block hover:bg-gray-100 p-2 rounded">
             Dashboard
           </Link>
           <Link to="/students" className="block hover:bg-gray-100 p-2 rounded">
             All Students
+          </Link>
+           <Link to="/teachers" className="block hover:bg-gray-100 p-2 rounded">
+            All Teachers
           </Link>
           <Link to="/results" className="block hover:bg-gray-100 p-2 rounded">
             Results
