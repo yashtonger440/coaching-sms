@@ -24,6 +24,26 @@ const Teachers = () => {
     experience: "",
   });
 
+  // 📲 WhatsApp with Auto Message
+  const openWhatsApp = (t) => {
+    if (!t.phone) return;
+
+    const message = `
+Hello ${t.name},
+
+Subject: ${t.course || "-"}
+Qualification: ${t.qualification || "-"}
+Experience: ${t.experience || "-"}
+
+Thank you.
+    `;
+
+    const url = `https://wa.me/91${t.phone}?text=${encodeURIComponent(
+      message,
+    )}`;
+    window.open(url, "_blank");
+  };
+
   // 🔄 Fetch
   const fetchTeachers = async () => {
     const res = await api.get("/teachers");
@@ -36,9 +56,7 @@ const Teachers = () => {
 
   // 🔍 Search
   const filtered = teachers.filter((t) =>
-    `${t.name} ${t.course}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
+    `${t.name} ${t.course}`.toLowerCase().includes(search.toLowerCase()),
   );
 
   // ❌ Delete
@@ -164,6 +182,13 @@ const Teachers = () => {
                   </button>
 
                   <button
+                    onClick={() => openWhatsApp(t)}
+                    className="bg-green-100 text-green-700 px-3 py-1 rounded"
+                  >
+                    WhatsApp
+                  </button>
+
+                  <button
                     onClick={() => handleDelete(t._id)}
                     className="bg-red-100 text-red-600 px-3 py-1 rounded"
                   >
@@ -176,13 +201,10 @@ const Teachers = () => {
         </table>
       </div>
 
-      {/* ================= MOBILE CARDS (STUDENT.JSX STYLE) ================= */}
+      {/* ================= MOBILE CARDS ================= */}
       <div className="md:hidden px-4 space-y-4">
         {filtered.map((t) => (
-          <div
-            key={t._id}
-            className="bg-white shadow rounded p-4"
-          >
+          <div key={t._id} className="bg-white shadow rounded p-4">
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-bold text-lg">{t.name}</h3>
               <span className="text-sm text-gray-500">{t.course}</span>
@@ -211,6 +233,13 @@ const Teachers = () => {
               </button>
 
               <button
+                onClick={() => openWhatsApp(t)}
+                className="bg-green-100 text-green-700 px-3 py-1 rounded text-sm"
+              >
+                WhatsApp
+              </button>
+
+              <button
                 onClick={() => handleDelete(t._id)}
                 className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm"
               >
@@ -233,31 +262,110 @@ const Teachers = () => {
               onSubmit={handleSubmit}
               className="grid grid-cols-1 sm:grid-cols-2 gap-4"
             >
-              <input name="name" value={form.name} onChange={handleChange} placeholder="Name" className="border p-2" required />
-              <input name="email" value={form.email} onChange={handleChange} placeholder="Email" className="border p-2" />
-              <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" className="border p-2" />
-              <input name="dob" type="date" value={form.dob} onChange={handleChange} className="border p-2" />
+              <input
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Name"
+                className="border p-2"
+                required
+              />
+              <input
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Email"
+                className="border p-2"
+              />
+              <input
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="Phone"
+                className="border p-2"
+              />
+              <input
+                name="dob"
+                type="date"
+                value={form.dob}
+                onChange={handleChange}
+                className="border p-2"
+              />
 
-              <select name="gender" value={form.gender} onChange={handleChange} className="border p-2">
+              <select
+                name="gender"
+                value={form.gender}
+                onChange={handleChange}
+                className="border p-2"
+              >
                 <option value="">Gender</option>
                 <option>Male</option>
                 <option>Female</option>
               </select>
 
-              <input name="course" value={form.course} onChange={handleChange} placeholder="Subject" className="border p-2" />
-              <input name="qualification" value={form.qualification} onChange={handleChange} placeholder="Qualification" className="border p-2" />
-              <input name="experience" value={form.experience} onChange={handleChange} placeholder="Experience" className="border p-2" />
+              <input
+                name="course"
+                value={form.course}
+                onChange={handleChange}
+                placeholder="Subject"
+                className="border p-2"
+              />
+              <input
+                name="qualification"
+                value={form.qualification}
+                onChange={handleChange}
+                placeholder="Qualification"
+                className="border p-2"
+              />
+              <input
+                name="experience"
+                value={form.experience}
+                onChange={handleChange}
+                placeholder="Experience"
+                className="border p-2"
+              />
 
-              <input name="address" value={form.address} onChange={handleChange} placeholder="Address" className="border p-2 sm:col-span-2" />
-              <input name="city" value={form.city} onChange={handleChange} placeholder="City" className="border p-2" />
-              <input name="state" value={form.state} onChange={handleChange} placeholder="State" className="border p-2" />
-              <input name="pincode" value={form.pincode} onChange={handleChange} placeholder="Pincode" className="border p-2" />
+              <input
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                placeholder="Address"
+                className="border p-2 sm:col-span-2"
+              />
+              <input
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                placeholder="City"
+                className="border p-2"
+              />
+              <input
+                name="state"
+                value={form.state}
+                onChange={handleChange}
+                placeholder="State"
+                className="border p-2"
+              />
+              <input
+                name="pincode"
+                value={form.pincode}
+                onChange={handleChange}
+                placeholder="Pincode"
+                className="border p-2"
+              />
 
               <div className="sm:col-span-2 flex gap-4">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 border p-2">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="flex-1 border p-2"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 bg-blue-600 text-white p-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white p-2"
+                >
                   {editId ? "Update" : "Save"}
                 </button>
               </div>
