@@ -48,6 +48,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+
 /* ✅ DELETE TEACHER */
 router.delete("/:id", async (req, res) => {
   try {

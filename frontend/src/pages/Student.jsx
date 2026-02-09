@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
 
@@ -24,10 +24,10 @@ const Students = () => {
     feesTotal: "",
   });
 
-  // 🔄 Fetch students
+  // 🔄 Fetch
   const fetchStudents = async () => {
     const res = await api.get("/students");
-    if (Array.isArray(res.data)) setStudents(res.data);
+    setStudents(res.data || []);
   };
 
   useEffect(() => {
@@ -35,18 +35,13 @@ const Students = () => {
   }, []);
 
   // 🔍 Search
-  const filteredStudents = students.filter((s) => {
-    const name = s.name || "";
-    const course = s.course || "";
-    return (
-      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
+  const filtered = students.filter((s) =>
+    `${s.name} ${s.course}`.toLowerCase().includes(search.toLowerCase())
+  );
 
   // ❌ Delete
   const handleDelete = async (id) => {
-    if (window.confirm("Confirm delete?")) {
+    if (window.confirm("Delete this student?")) {
       await api.delete(`/students/${id}`);
       fetchStudents();
     }
@@ -55,18 +50,8 @@ const Students = () => {
   // ✏️ Edit
   const handleEdit = (s) => {
     setForm({
-      name: s.name || "",
-      email: s.email || "",
-      phone: s.phone || "",
+      ...s,
       dob: s.dob ? s.dob.slice(0, 10) : "",
-      gender: s.gender || "",
-      address: s.address || "",
-      city: s.city || "",
-      state: s.state || "",
-      pincode: s.pincode || "",
-      course: s.course || "",
-      paid: s.paid ?? "",
-      feesTotal: s.feesTotal || "",
     });
     setEditId(s._id);
     setShowForm(true);
@@ -85,46 +70,32 @@ const Students = () => {
       paid: Number(form.paid),
     };
 
-    if (editId) {
-      await api.put(`/students/${editId}`, payload);
-    } else {
-      await api.post("/students", payload);
-    }
+    editId
+      ? await api.put(`/students/${editId}`, payload)
+      : await api.post("/students", payload);
 
     setShowForm(false);
     setEditId(null);
     fetchStudents();
   };
 
-  // 📲 WhatsApp
-  const getWhatsappLink = (s) => {
-    if (!s.phone) return "#";
-
-    const paid = s.paid || 0;
-    const pending = (s.feesTotal || 0) - paid;
-
-    const msg = `Hello ${s.name},
-    Course: ${s.course}
-    Total Fees: ₹${s.feesTotal}
-    Paid: ₹${paid}
-    Pending: ₹${pending}`;
-
-    return `https://wa.me/91${s.phone}?text=${encodeURIComponent(msg)}`;
+  const openWhatsApp = (phone) => {
+    if (!phone) return;
+    window.open(`https://wa.me/91${phone}`, "_blank");
   };
 
   return (
     <Layout>
-      {/* Header */}
+      {/* ================= HEADER ================= */}
       <div className="flex flex-col md:flex-row md:justify-between gap-4 mb-6 px-4">
-        <h1 className="text-2xl font-bold">All Students</h1>
+        <h1 className="text-2xl font-bold">Students</h1>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex gap-3 flex-wrap">
           <input
-            type="text"
-            placeholder="Search..."
             className="border p-2 rounded"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search student..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
 
           <button
@@ -153,34 +124,34 @@ const Students = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white shadow rounded mx-4 overflow-x-auto">
-        <table className="min-w-200 w-full">
+      {/* ================= DESKTOP TABLE ================= */}
+      <div className="hidden md:block bg-white shadow rounded mx-4 overflow-x-auto">
+        <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="p-4">Name</th>
-              <th className="p-4">Course</th>
-              <th className="p-4">Total</th>
-              <th className="p-4">Paid</th>
-              <th className="p-4">Pending</th>
+              <th className="p-4 text-left">Name</th>
+              <th className="p-4 text-left">Course</th>
+              <th className="p-4 text-left">Total</th>
+              <th className="p-4 text-left">Paid</th>
+              <th className="p-4 text-left">Pending</th>
               <th className="p-4 text-center">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredStudents.map((s) => {
+            {filtered.map((s) => {
               const paid = s.paid || 0;
               const pending = (s.feesTotal || 0) - paid;
 
               return (
                 <tr key={s._id} className="border-t">
-                  <td className="p-4">{s.name}</td>
+                  <td className="p-4 font-medium">{s.name}</td>
                   <td className="p-4">{s.course}</td>
                   <td className="p-4">₹{s.feesTotal}</td>
                   <td className="p-4 text-green-600">₹{paid}</td>
                   <td className="p-4 text-red-600">₹{pending}</td>
 
-                  <td className="p-4 space-x-2 text-center whitespace-nowrap">
+                  <td className="p-4 text-center space-x-2">
                     <Link
                       to={`/students/${s._id}`}
                       className="bg-blue-100 text-blue-700 px-3 py-1 rounded"
@@ -188,16 +159,12 @@ const Students = () => {
                       View
                     </Link>
 
-                    {s.phone && (
-                      <a
-                        href={getWhatsappLink(s)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="bg-green-100 text-green-700 px-3 py-1 rounded"
-                      >
-                        WhatsApp
-                      </a>
-                    )}
+                    <button
+                      onClick={() => openWhatsApp(s.phone)}
+                      className="bg-green-100 text-green-700 px-3 py-1 rounded"
+                    >
+                      WhatsApp
+                    </button>
 
                     <button
                       onClick={() => handleEdit(s)}
@@ -220,9 +187,60 @@ const Students = () => {
         </table>
       </div>
 
-      {/* Popup */}
+      {/* ================= MOBILE CARDS ================= */}
+      <div className="md:hidden px-4 space-y-4">
+        {filtered.map((s) => {
+          const paid = s.paid || 0;
+          const pending = (s.feesTotal || 0) - paid;
+
+          return (
+            <div key={s._id} className="bg-white shadow rounded p-4">
+              <h3 className="font-bold text-lg">{s.name}</h3>
+              <p className="text-sm text-gray-500">{s.course}</p>
+              <p className="text-sm">Gender: {s.gender || "-"}</p>
+              <p className="text-sm">Address: {s.address || "-"}</p>
+
+              <p>Total: ₹{s.feesTotal}</p>
+              <p className="text-green-600">Paid: ₹{paid}</p>
+              <p className="text-red-600">Pending: ₹{pending}</p>
+
+              <div className="flex gap-2 flex-wrap mt-3">
+                <Link
+                  to={`/students/${s._id}`}
+                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm"
+                >
+                  View
+                </Link>
+
+                <button
+                  onClick={() => openWhatsApp(s.phone)}
+                  className="bg-green-100 text-green-700 px-3 py-1 rounded text-sm"
+                >
+                  WhatsApp
+                </button>
+
+                <button
+                  onClick={() => handleEdit(s)}
+                  className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded text-sm"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => handleDelete(s._id)}
+                  className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ================= POPUP FORM ================= */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">
               {editId ? "Edit Student" : "Add Student"}
@@ -238,21 +256,23 @@ const Students = () => {
               <input name="dob" type="date" value={form.dob} onChange={handleChange} className="border p-2" />
 
               <select name="gender" value={form.gender} onChange={handleChange} className="border p-2">
-                <option value="">Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-                <option>Other</option>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
               </select>
 
+              <textarea
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                placeholder="Address"
+                className="border p-2 sm:col-span-2"
+              />
+
               <input name="course" value={form.course} onChange={handleChange} placeholder="Course" className="border p-2" />
-
-              <input name="address" value={form.address} onChange={handleChange} placeholder="Address" className="border p-2 sm:col-span-2" />
-              <input name="city" value={form.city} onChange={handleChange} placeholder="City" className="border p-2" />
-              <input name="state" value={form.state} onChange={handleChange} placeholder="State" className="border p-2" />
-              <input name="pincode" value={form.pincode} onChange={handleChange} placeholder="Pincode" className="border p-2" />
-
-              <input name="feesTotal" type="number" value={form.feesTotal} onChange={handleChange} placeholder="Total Fees" className="border p-2" required />
-              <input name="paid" type="number" value={form.paid} onChange={handleChange}placeholder="Paid Fees" className="border p-2" />
+              <input name="feesTotal" type="number" value={form.feesTotal} onChange={handleChange} placeholder="Total Fees" className="border p-2" />
+              <input name="paid" type="number" value={form.paid} onChange={handleChange} placeholder="Paid Fees" className="border p-2" />
 
               <div className="sm:col-span-2 flex gap-4">
                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 border p-2">

@@ -4,6 +4,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import authRoutes from "./routes/authRoutes.js"
 import studentRoutes from "./routes/studentRoutes.js"
+import resultRoutes from "./routes/resultRoutes.js";
 import teacherRoutes from "./routes/teacherRoute.js"
 
 dotenv.config()
@@ -14,6 +15,7 @@ app.use(express.json())
 
 app.use("/api/auth", authRoutes)
 app.use("/api/students", studentRoutes)
+app.use("/api/results", resultRoutes);
 app.use("/api/teachers", teacherRoutes)
 
 app.get("/api/test", (req, res) => {

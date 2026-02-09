@@ -24,9 +24,6 @@ const studentSchema = new mongoose.Schema({
     default: 0,
     min: 0,
   },
-
-  // Profile
-  profilePic: String, // image URL (later upload bhi kara denge)
 });
 
 const Student = mongoose.model("Student", studentSchema);
