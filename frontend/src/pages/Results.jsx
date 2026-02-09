@@ -29,21 +29,19 @@ const Results = () => {
   }, []);
 
   // 🔍 Search
-  const filteredResults = results.filter((r) => {
-    const name = r.studentName || "";
-    const course = r.course || "";
-    return (
-      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
+  const filteredResults = results.filter((r) =>
+    `${r.studentName} ${r.course}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
 
   // ❌ Delete
-const handleDelete = async (id) => {
-  await api.delete(`/results/${id}`);
-  setResults(prev => prev.filter(r => r._id !== id));
-};
-
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this result?")) {
+      await api.delete(`/results/${id}`);
+      fetchResults();
+    }
+  };
 
   // ✏️ Edit
   const handleEdit = (r) => {
@@ -77,11 +75,9 @@ const handleDelete = async (id) => {
       status: percentage >= 40 ? "Pass" : "Fail",
     };
 
-    if (editId) {
-      await api.put(`/results/${editId}`, payload);
-    } else {
-      await api.post("/results", payload);
-    }
+    editId
+      ? await api.put(`/results/${editId}`, payload)
+      : await api.post("/results", payload);
 
     setShowForm(false);
     setEditId(null);
@@ -90,45 +86,107 @@ const handleDelete = async (id) => {
 
   return (
     <Layout>
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:justify-between gap-4 mb-6 px-4">
-        <h1 className="text-2xl font-bold">Results</h1>
+      {/* ================= HEADER ================= */}
+      <div className="px-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-bold">Results</h1>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="border p-2 rounded"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              className="border rounded px-3 py-2"
+              placeholder="Search result..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
 
-          <button
-            onClick={() => {
-              setForm({
-                studentName: "",
-                course: "",
-                batch: "",
-                testName: "",
-                totalMarks: "",
-                obtainedMarks: "",
-              });
-              setEditId(null);
-              setShowForm(true);
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            + Add Result
-          </button>
+            <button
+              onClick={() => {
+                setForm({
+                  studentName: "",
+                  course: "",
+                  batch: "",
+                  testName: "",
+                  totalMarks: "",
+                  obtainedMarks: "",
+                });
+                setEditId(null);
+                setShowForm(true);
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              + Add Result
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white shadow rounded mx-4 overflow-x-auto">
-        <table className="min-w-200 w-full">
-          <thead className="bg-gray-50">
+      {/* ================= MOBILE VIEW (CARDS) ================= */}
+      <div className="md:hidden space-y-4 px-4">
+        {filteredResults.map((r) => (
+          <div
+            key={r._id}
+            className="bg-white rounded-xl shadow p-4 space-y-2"
+          >
+            <div>
+              <h2 className="font-bold text-lg">{r.studentName}</h2>
+              <p className="text-sm text-gray-500">
+                {r.course} • {r.testName}
+              </p>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span>Total Marks</span>
+              <span>{r.totalMarks}</span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span>Obtained</span>
+              <span>{r.obtainedMarks}</span>
+            </div>
+
+            <div className="flex justify-between text-sm font-semibold">
+              <span>Percentage</span>
+              <span>{r.percentage?.toFixed(2)}%</span>
+            </div>
+
+            <div
+              className={`text-sm font-semibold ${
+                r.status === "Pass" ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {r.status}
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-3">
+              <Link
+                to={`/results/${r._id}`}
+                className="bg-blue-100 text-blue-700 px-3 py-1 rounded"
+              >
+                View
+              </Link>
+              <button
+                onClick={() => handleEdit(r)}
+                className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(r._id)}
+                className="bg-red-100 text-red-600 px-3 py-1 rounded"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ================= DESKTOP VIEW (TABLE) ================= */}
+      <div className="hidden md:block bg-white shadow rounded mx-4 overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-100">
             <tr>
-              <th className="p-4">Student</th>
+              <th className="p-4 text-left">Student</th>
               <th className="p-4">Course</th>
               <th className="p-4">Test</th>
               <th className="p-4">%</th>
@@ -155,22 +213,19 @@ const handleDelete = async (id) => {
                 >
                   {r.status}
                 </td>
-
-                <td className="p-4 space-x-2 text-center whitespace-nowrap">
+                <td className="p-4 text-center space-x-2">
                   <Link
                     to={`/results/${r._id}`}
                     className="bg-blue-100 text-blue-700 px-3 py-1 rounded"
                   >
                     View
                   </Link>
-
                   <button
                     onClick={() => handleEdit(r)}
                     className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded"
                   >
                     Edit
                   </button>
-
                   <button
                     onClick={() => handleDelete(r._id)}
                     className="bg-red-100 text-red-600 px-3 py-1 rounded"
@@ -184,10 +239,10 @@ const handleDelete = async (id) => {
         </table>
       </div>
 
-      {/* Popup */}
+      {/* ================= POPUP FORM ================= */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">
               {editId ? "Edit Result" : "Add Result"}
             </h2>
@@ -196,19 +251,38 @@ const handleDelete = async (id) => {
               onSubmit={handleSubmit}
               className="grid grid-cols-1 sm:grid-cols-2 gap-4"
             >
-              <input name="studentName" value={form.studentName} onChange={handleChange} placeholder="Student Name" className="border p-2" required />
-              <input name="course" value={form.course} onChange={handleChange} placeholder="Course" className="border p-2" />
-              <input name="batch" value={form.batch} onChange={handleChange} placeholder="Batch" className="border p-2" />
-              <input name="testName" value={form.testName} onChange={handleChange} placeholder="Test Name" className="border p-2" />
+              {[
+                ["studentName", "Student Name"],
+                ["course", "Course"],
+                ["batch", "Batch"],
+                ["testName", "Test Name"],
+                ["totalMarks", "Total Marks", "number"],
+                ["obtainedMarks", "Obtained Marks", "number"],
+              ].map(([name, label, type = "text"]) => (
+                <input
+                  key={name}
+                  name={name}
+                  type={type}
+                  value={form[name]}
+                  onChange={handleChange}
+                  placeholder={label}
+                  className="border p-2 rounded"
+                  required
+                />
+              ))}
 
-              <input name="totalMarks" type="number" value={form.totalMarks} onChange={handleChange} placeholder="Total Marks" className="border p-2" required />
-              <input name="obtainedMarks" type="number" value={form.obtainedMarks} onChange={handleChange} placeholder="Obtained Marks" className="border p-2" required />
-
-              <div className="sm:col-span-2 flex gap-4">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 border p-2">
+              <div className="sm:col-span-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="flex-1 border rounded py-2"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 bg-blue-600 text-white p-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white rounded py-2"
+                >
                   {editId ? "Update" : "Save"}
                 </button>
               </div>

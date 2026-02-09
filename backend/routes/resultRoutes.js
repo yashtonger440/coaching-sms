@@ -49,6 +49,21 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET SINGLE RESULT
+router.get("/:id", async (req, res) => {
+  try {
+    const result = await Result.findById(req.params.id);
+
+    if (!result) {
+      return res.status(404).json({ message: "Result not found" });
+    }
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 /**
  * ✏️ UPDATE RESULT
  */
@@ -86,7 +101,6 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 
 
 export default router;
