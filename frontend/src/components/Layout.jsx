@@ -17,13 +17,13 @@ function Layout({children}) {
             Dashboard
           </Link>
           <Link to="/students" className="block hover:bg-gray-100 p-2 rounded">
-            Students
-          </Link>
-          <Link to="/fees" className="block hover:bg-gray-100 p-2 rounded">
-            Fees
+            All Students
           </Link>
           <Link to="/results" className="block hover:bg-gray-100 p-2 rounded">
             Results
+          </Link>
+          <Link to="/results" className="block hover:bg-gray-100 p-2 rounded">
+            Courses
           </Link>
         </nav>
       </aside>
