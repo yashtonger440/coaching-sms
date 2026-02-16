@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../api/axios";
-import Layout from "../components/Layout";
+import api from "../../api/axios";
+import Layout from "../../components/Layout";
 
 const StudentDetails = () => {
   const { id } = useParams();

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../api/axios";
-import Layout from "../components/Layout";
+import api from "../../api/axios";
+import Layout from "../../components/Layout";
 
 const ResultDetails = () => {
   const { id } = useParams();

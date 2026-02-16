@@ -1,19 +1,34 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Students from "./pages/Student";
-import StudentDetails from "./pages/StudentDetails";
-import Results from "./pages/Results";
-import Teachers from "./pages/Teachers";
-import TeacherDetails from "./pages/TeacherDetails";
-import ResultDetails from "./pages/ResultDetails";
+import Login from "./pages/admin/Login";
+import Dashboard from "./pages/admin/Dashboard";
+import Students from "./pages/admin/Student";
+import StudentDetails from "./pages/admin/StudentDetails";
+import Results from "./pages/admin/Results";
+import Teachers from "./pages/admin/Teachers";
+import TeacherDetails from "./pages/admin/TeacherDetails";
+import ResultDetails from "./pages/admin/ResultDetails";
+import Home from "./pages/website/Home";
+import About from "./pages/website/About";
+import Courses from "./pages/website/Courses";
+import Contact from "./pages/website/Contact";
+import Navbar from "./components/Navbar";
+import ScrollToTop from "./components/ScrollToTop";
+// import Footer from "./pages/website/Footer"
+
 
 const App = () => {
   return (
     <BrowserRouter>
+    <ScrollToTop />
+    <Navbar />
       <Routes>
+        <Route path="/" element={<Home />}/>
+        <Route path="/about" element={<About />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/contact" element={<Contact />} />
+
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/students" element={<Students />} />
         <Route path="/teachers" element={<Teachers />} />
         <Route path="/students/:id" element={<StudentDetails />} />
@@ -21,6 +36,7 @@ const App = () => {
         <Route path="/teachers/:id" element={<TeacherDetails />} />
         <Route path="/results/:id" element={<ResultDetails />} />
       </Routes>
+      {/* <Footer /> */}
     </BrowserRouter>
   );
 };
